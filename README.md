@@ -20,7 +20,7 @@ This project is for paper "Physics Inspired Hybrid Attention for SAR Target Reco
 ### 1.1 Features
 
 <div align=center>
-<img src="https://github.com/XAI4SAR/SAR-HUB/blob/main/img/intro.png" width="60%">
+<img src="https://github.com/XAI4SAR/PIHA/main/img/nerwork.png" width="60%">
 </div>
 
 ### 1.2 Contributions
