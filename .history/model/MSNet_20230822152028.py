@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 import sys
 from model.PASE import *
+sys.path.append('/home/hzl/STAT/code_wu/Experiment') 
+
 class MSNet_basic_block_PASE(nn.Module):
     def __init__(self, in_channel, out_channel, part_num, down_rate, attention_setting=-1):
         super(MSNet_basic_block_PASE, self).__init__()

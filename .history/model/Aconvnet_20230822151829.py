@@ -1,6 +1,12 @@
 import torch
 import torch.nn as nn
+from torch.nn import functional as F
+import os
+import sys
 from model.PASE import *
+
+sys.path.append('/home/hzl/STAT/code_wu/Experiment') 
+    
 class Aconvnet_PASE(nn.Module):
     def __init__(self, num_class, part_num, attention_setting):
         super(Aconvnet_PASE, self).__init__()
@@ -48,7 +54,7 @@ class Aconvnet_PASE(nn.Module):
         )
         inchannel = 64
         down_rate = 8
-
+        
         if attention_setting:
             self.phy_attn3 = PASE(part_num, inchannel, down_rate, reduction=2)
         else:
@@ -61,18 +67,14 @@ class Aconvnet_PASE(nn.Module):
         ) 
 
     def forward(self, x_cls, ASC_part):
-
         x_cls = self.cls_conv0(x_cls)
 
         x_cls = self.cls_conv1(x_cls)
         x_cls = self.phy_attn1(x_cls, ASC_part)
-
         x_cls = self.cls_conv2(x_cls)
         x_cls = self.phy_attn2(x_cls, ASC_part)
-
         x_cls = self.cls_conv3(x_cls)
         x_cls = self.phy_attn3(x_cls, ASC_part)
-
         result = self.cls_conv4(x_cls)
         return torch.squeeze(torch.squeeze(result, 2), 2)
     

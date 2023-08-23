@@ -223,7 +223,7 @@ def train(config, i):
             print("Early stopping")
             break
     
-    model_CNN = load_pretrained_model('/STAT/wc/Experiment/phy_attention/result/20230707_1/1.pth', model_CNN)
+    model_CNN = load_pretrained_model(early_stopping.save_path, model_CNN)
 
     acc_val, _ = validate(dataloader['val'], model_CNN)
     acc_OFA1, _ = validate(dataloader['OFA1'], model_CNN)
@@ -243,7 +243,7 @@ if __name__ == '__main__':
     parser.add_argument('--datatxt_val', default='data/Train/list/val_90.txt')
     # training setting
     parser.add_argument('--train_num', default=2)
-    parser.add_argument('--num_epochs', type=int, default=0)
+    parser.add_argument('--num_epochs', type=int, default=10)
     parser.add_argument('--patience', type=int, default=200)
     parser.add_argument('--batch_size', type=int, nargs='+', default=32)
     parser.add_argument('--device', default='0')
@@ -254,7 +254,7 @@ if __name__ == '__main__':
     parser.add_argument('--attention_setting', default=True)
     # other
     parser.add_argument('--save_path', default='result/') 
-    parser.add_argument('--pretrain', default='/STAT/wc/Experiment/phy_attention/result/20230707_1/1.pth')
+    parser.add_argument('--pretrain', default=None)
     
     args = parser.parse_args()
     config = parameter_setting(args)

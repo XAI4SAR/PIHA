@@ -27,7 +27,8 @@ def accuracy(output, target, topk=(1,)):
         return correct
     
 def validate(val_loader, model):
-
+    
+    # switch to evaluate mode
     F = nn.CrossEntropyLoss()
     model.eval()
     sum = 0
@@ -76,6 +77,7 @@ def parameter_setting(args):
 def get_dataloader(config, data_transforms):
 
     dataset_train = Mstar_ASC_part_2(config['datatxt_train'], transform=data_transforms)
+# 
     dataloader = {}
     dataloader['train'] = DataLoader(dataset_train,
                                     batch_size=config['batch_size'],
@@ -142,15 +144,16 @@ def load_pretrained_model(path, model):
     return model
 
 
-def train(config, i): 
+def train(config, i):
+    os.environ["CUDA_VISIBLE_DEVICES"] = config['device']
     if not os.path.exists(config['save_path']):
         os.makedirs(config['save_path'])
-
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     early_stopping = EarlyStopping(os.path.join(config['save_path'], '{}.pth'.format(i)), config['patience'])
 
     save_dir = config['save_path']
+    
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
 
@@ -159,7 +162,6 @@ def train(config, i):
         os.makedirs(log_path)
 
     print(torch.cuda.get_device_name(),device)
-
     if config['arch'] == 'MSNet_PASE':
         init_lr = 0.0005
         data_transforms = transforms.Compose([
@@ -168,21 +170,21 @@ def train(config, i):
     ])
         model_CNN = eval(config['arch'])(config['cate_num'], config['part_num'], 100, config['attention_setting'])
         
-    elif config['arch'] == 'Aconvnet_PASE':
+    if config['arch'] == 'Aconvnet_PASE':
         init_lr = 0.005
         data_transforms = transforms.Compose([
         transforms.ToTensor(),
     ])
         model_CNN = eval(config['arch'])(config['cate_num'], config['part_num'], config['attention_setting'])
 
-    elif config['arch'] == 'Densenet121_PASE':
+    if config['arch'] == 'Densenet121_PASE':
         init_lr = 0.0005
         data_transforms = transforms.Compose([
         transforms.ToTensor(),
         transforms.CenterCrop(64),      
     ])
-        model_CNN = eval(config['arch'])(config['cate_num'], part_num=config['part_num'], attention_setting=config['attention_setting'])
-    
+        model_CNN = eval(config['arch'])(config['cate_num'], config['part_num'], config['attention_setting'])
+   
     if config['pretrain']:
         model_CNN = load_pretrained_model(config['pretrain'], model_CNN)  
     model_CNN.to(device)
@@ -205,88 +207,86 @@ def train(config, i):
             labels = labels.to(device)
             ASC_part = transforms.CenterCrop(64)(ASC_part).float().to(device)
             output = model_CNN(data, ASC_part)
-            loss = loss_func(output, labels)
-            loss_sum += loss
+            loss2 = loss_func(output, labels)
+            loss_sum += loss2
+            loss = loss2
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()      
         val_loss = 0.0
-        acc, val_loss = validate(dataloader['val'], model_CNN)
-        writer.add_scalar('accuracy', acc, (epoch+1))
+        acc1, val_loss = validate(dataloader['val'], model_CNN)
+        writer.add_scalar('accuracy', acc1, (epoch+1))
         writer.add_scalars('loss', {'cls_train': loss_sum.item()/len(dataloader['train']),  
                                     'cls_val': val_loss.item(),}, epoch + 1) 
-        print('{}准确率:{}'.format(epoch+1, acc.item()))
-        conuter = early_stopping(acc, model_CNN)
+        print('{}准确率:{}'.format(epoch+1, acc1.item()))
+        conuter = early_stopping(acc1, model_CNN)
         writer.add_scalar('conuter', conuter, (epoch+1))
     
         if early_stopping.early_stop:
             print("Early stopping")
             break
     
-    model_CNN = load_pretrained_model('/STAT/wc/Experiment/phy_attention/result/20230707_1/1.pth', model_CNN)
+    model_CNN = load_pretrained_model(early_stopping.save_path, model_CNN)
 
     acc_val, _ = validate(dataloader['val'], model_CNN)
-    acc_OFA1, _ = validate(dataloader['OFA1'], model_CNN)
-    acc_OFA2, _ = validate(dataloader['OFA2'], model_CNN)
-    acc_OFA3, _ = validate(dataloader['OFA3'], model_CNN)
+    acc_SOC10, _ = validate(dataloader['OFA1'], model_CNN)
+    acc_SOC14, _ = validate(dataloader['OFA2'], model_CNN)
+    acc_EOCdepression, _ = validate(dataloader['OFA3'], model_CNN)
     print('*******************************************************')    
-    return acc_val, acc_OFA1, acc_OFA2, acc_OFA3, epoch
+    return acc_val, acc_SOC10, acc_SOC14, acc_EOCdepression, epoch
 
 if __name__ == '__main__': 
 
     parser = argparse.ArgumentParser(prog='CNN_training')
-    # data setting
+    parser.add_argument('--arch', default='MSNet_PASE')
     parser.add_argument('--datatxt_train', default='data/Train/list/train_90.txt')
     parser.add_argument('--datatxt_OFA1', default='data/OFA1_2/list/OFA1.txt')
-    parser.add_argument('--datatxt_OFA2', default='data/OFA1_2/list/OFA2.txt')
+    parser.add_argument('--datatxt_OFA2', default='data/OFA1_2/list/OFA1.txt')
     parser.add_argument('--datatxt_OFA3', default='data/OFA3/list/OFA3.txt')
     parser.add_argument('--datatxt_val', default='data/Train/list/val_90.txt')
+    parser.add_argument('--cate_num', type=int, default=10)
+    parser.add_argument('--save_path', default='result/') 
+    parser.add_argument('--pretrain', default=None)
     # training setting
     parser.add_argument('--train_num', default=2)
-    parser.add_argument('--num_epochs', type=int, default=0)
-    parser.add_argument('--patience', type=int, default=200)
     parser.add_argument('--batch_size', type=int, nargs='+', default=32)
-    parser.add_argument('--device', default='0')
-    #Algorithmic hyperparameters
-    parser.add_argument('--arch', default='Densenet121_PASE')# Optional: MSNet_PASE Aconvnet_PASE Densenet121_PASE
-    parser.add_argument('--cate_num', type=int, default=10)
+
+    parser.add_argument('--num_epochs', type=int, default=10)
+
     parser.add_argument('--part_num', type=int, default=4)
+
+    parser.add_argument('--patience', type=int, default=200)
     parser.add_argument('--attention_setting', default=True)
-    # other
-    parser.add_argument('--save_path', default='result/') 
-    parser.add_argument('--pretrain', default='/STAT/wc/Experiment/phy_attention/result/20230707_1/1.pth')
-    
+    parser.add_argument('--device', default='0')
+
     args = parser.parse_args()
     config = parameter_setting(args)
-
-    os.environ["CUDA_VISIBLE_DEVICES"] = config['device']
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
     val_list = []
-    OFA1_list = []
-    OFA2_list = []
-    OFA3_list = []
+    SOC10_list = []
+    SOC14_list = []
+    EOCdepression_list = []
     stop_epoch_list = []
     
     for i in range(config['train_num']):
-        val_acc, OFA1_acc, OFA2_acc, OFA3_acc, stop_epoch = train(config, i)
+        val_acc, SOC10_acc, SOC14_acc, EOCdepression_acc, stop_epoch = train(config, i)
         val_list.append(str(val_acc.item()))
-        OFA1_list.append(str(OFA1_acc.item())) 
-        OFA2_list.append(str(OFA2_acc.item())) 
-        OFA3_list.append(str(OFA3_acc.item()))
+        SOC10_list.append(str(SOC10_acc.item())) 
+        SOC14_list.append(str(SOC14_acc.item())) 
+        EOCdepression_list.append(str(EOCdepression_acc.item()))
+        
         stop_epoch_list.append(str(stop_epoch))
 
         val_result = 'val:' + '\t'.join(val_list) + '\n'
-        OFA1_result = 'OFA1:' + '\t'.join(OFA1_list) + '\n'
-        OFA2_result = 'OFA2:' + '\t'.join(OFA2_list) + '\n'
-        OFA3_result = 'OFA3:' + '\t'.join(OFA3_list) + '\n'
+        SOC10_result = 'OFA1:' + '\t'.join(SOC10_list) + '\n'
+        SOC14_result = 'OFA2:' + '\t'.join(SOC14_list) + '\n'
+        EOCdepression_result = 'OFA3:' + '\t'.join(EOCdepression_list) + '\n'
         stop_epoch_result = 'stop_epoch:' + '\t'.join(stop_epoch_list) + '\n'
         
         with open(os.path.join(config['save_path'], 'result.txt'), 'w') as f:
             f.write(val_result)
-            f.write(OFA1_result)
-            f.write(OFA2_result)
-            f.write(OFA3_result)
+            f.write(SOC10_result)
+            f.write(SOC14_result)
+            f.write(EOCdepression_result)
             f.write(stop_epoch_result)
 
         

@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 import sys
 from model.PASE import *
+sys.path.append('/home/hzl/STAT/code_wu/Experiment') 
+
 class MSNet_basic_block_PASE(nn.Module):
     def __init__(self, in_channel, out_channel, part_num, down_rate, attention_setting=-1):
         super(MSNet_basic_block_PASE, self).__init__()
@@ -120,9 +122,9 @@ class MSNet_PASE(nn.Module):
     def __init__(self, num_class, part_num, channel, attention_setting):
         super(MSNet_PASE, self).__init__()
 
-        self.MS1 = MSNet_basic_block_PASE(1, channel, part_num, 2, attention_setting)
-        self.MS2 = MSNet_basic_block_PASE(3*channel, channel, part_num, 4, attention_setting)
-        self.MS3 = MSNet_last_block_PASE(3*channel, channel, part_num, 16, attention_setting)
+        self.MS1 = MSNet_basic_block_PASE(1, channel, part_num, 2, attention_setting[0])
+        self.MS2 = MSNet_basic_block_PASE(3*channel, channel, part_num, 4, attention_setting[1])
+        self.MS3 = MSNet_last_block_PASE(3*channel, channel, part_num, 16, attention_setting[2])
         self.Conv_Fu = nn.Conv2d(3*channel, 128, kernel_size=4, stride=1, padding=0)
         self.BN_Fu   = nn.BatchNorm2d(128)
         self.ReLU_Fu = nn.ReLU()

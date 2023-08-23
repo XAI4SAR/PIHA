@@ -39,4 +39,4 @@ class EarlyStopping:
         return self.counter
     
     def save_checkpoint(self, model):
-        torch.save(model.state_dict(), self.save_path)
+        torch.save(model.state_dict(), self.save_path)	# 这里会存储迄今最优模型的参数

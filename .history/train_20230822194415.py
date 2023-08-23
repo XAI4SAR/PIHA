@@ -223,7 +223,7 @@ def train(config, i):
             print("Early stopping")
             break
     
-    model_CNN = load_pretrained_model('/STAT/wc/Experiment/phy_attention/result/20230707_1/1.pth', model_CNN)
+    model_CNN = load_pretrained_model(early_stopping.save_path, model_CNN)
 
     acc_val, _ = validate(dataloader['val'], model_CNN)
     acc_OFA1, _ = validate(dataloader['OFA1'], model_CNN)
@@ -254,7 +254,7 @@ if __name__ == '__main__':
     parser.add_argument('--attention_setting', default=True)
     # other
     parser.add_argument('--save_path', default='result/') 
-    parser.add_argument('--pretrain', default='/STAT/wc/Experiment/phy_attention/result/20230707_1/1.pth')
+    parser.add_argument('--pretrain', default=None)
     
     args = parser.parse_args()
     config = parameter_setting(args)

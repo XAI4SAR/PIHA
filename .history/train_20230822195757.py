@@ -223,7 +223,7 @@ def train(config, i):
             print("Early stopping")
             break
     
-    model_CNN = load_pretrained_model('/STAT/wc/Experiment/phy_attention/result/20230707_1/1.pth', model_CNN)
+    model_CNN = load_pretrained_model('/STAT/wc/Experiment/phy_attention/result/20230707_1/0.pth', model_CNN)
 
     acc_val, _ = validate(dataloader['val'], model_CNN)
     acc_OFA1, _ = validate(dataloader['OFA1'], model_CNN)

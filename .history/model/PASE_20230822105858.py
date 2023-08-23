@@ -36,15 +36,17 @@ class Selective_AvgPool2d(nn.Module):
         x_ = abs(x)>self.thresh
         return ((x*x_).sum(dim=-1).sum(dim=-1)/(x_.sum(dim=-1).sum(dim=-1)+0.000001)).unsqueeze(-1).unsqueeze(-1)
     
-class PASE(nn.Module):
+class Phy_Attention_2_9(nn.Module):
     def __init__(self, part_num, in_channel, down_rate, reduction=2):
-        super(PASE, self).__init__()
+        super(Phy_Attention_2_9, self).__init__()
         self.part_num = part_num
         self.conv_S1 = nn.Conv2d(in_channel, in_channel, kernel_size=3, padding=1)
         self.conv_S2 = nn.Conv2d(in_channel, in_channel, kernel_size=3, padding=1)
-
         self.phy_group_conv = nn.Conv2d(part_num, in_channel, groups=part_num, kernel_size=down_rate+1, stride=down_rate, padding=1)
+
+
         self.se_S1 = SE_Block(in_channel, 2)  
+
         self.se_S2 = nn.Sequential(
                 Selective_AvgPool2d(0.05),
                 nn.Conv2d(in_channel//part_num, in_channel// (part_num*reduction),kernel_size=1, bias=False),
@@ -55,16 +57,16 @@ class PASE(nn.Module):
         self.softmax = nn.Softmax(dim=1)
     def forward(self, input, ASC_part):
         b, c, h, w = input.size()
-        #data-driven stream
+
         X1 = self.conv_S1(input)
         out1 = self.se_S1(X1)
-        #physics-driven steam
-        #PAM
+
         ASC_part_ = self.phy_group_conv(ASC_part)
+
         X2 = self.conv_S2(input)
         fuse_ = ASC_part_*X2
         fuse = fuse_.view(b, self.part_num, c//self.part_num, h, w) #bs,s,ci,h,w
-        #PIA
+
         se_out=[]
         for idx in range(self.part_num):
             se_out.append(self.se_S2(fuse[:,idx,:,:,:]))
@@ -75,6 +77,7 @@ class PASE(nn.Module):
 
         out2 = fuse_*attention_vectors.view(b,-1,1,1)
 
+        
         return out1 + out2
     def forward_hook(self, module, input, output):
         self.attention = output

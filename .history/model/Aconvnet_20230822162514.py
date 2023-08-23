@@ -1,6 +1,12 @@
 import torch
 import torch.nn as nn
+from torch.nn import functional as F
+import os
+import sys
 from model.PASE import *
+
+sys.path.append('/home/hzl/STAT/code_wu/Experiment') 
+    
 class Aconvnet_PASE(nn.Module):
     def __init__(self, num_class, part_num, attention_setting):
         super(Aconvnet_PASE, self).__init__()

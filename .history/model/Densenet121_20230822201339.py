@@ -1,10 +1,12 @@
+import sys
+sys.path.append('/STAT/wc/Experiment/phy_attention') 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.checkpoint as cp
 from collections import OrderedDict
 from model.PASE import *
-
+from torchsummary import summary
 
 class _DenseLayer(nn.Sequential):
     def __init__(self, num_input_features, growth_rate, bn_size, drop_rate, memory_efficient=False):

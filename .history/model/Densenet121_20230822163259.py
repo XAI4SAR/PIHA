@@ -1,10 +1,12 @@
+import sys
+sys.path.append('/STAT/wc/Experiment/phy_attention') 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.checkpoint as cp
 from collections import OrderedDict
 from model.PASE import *
-
+from torchsummary import summary
 
 class _DenseLayer(nn.Sequential):
     def __init__(self, num_input_features, growth_rate, bn_size, drop_rate, memory_efficient=False):
@@ -76,8 +78,9 @@ class _Transition(nn.Sequential):
         self.add_module('conv', nn.Conv2d(num_input_features, num_output_features,
                                           kernel_size=1, stride=1, bias=False))
         self.add_module('pool', nn.AvgPool2d(kernel_size=2, stride=2))
-class DenseNet_PASE(nn.Module):
 
+
+class DenseNet_PASE(nn.Module):
 
     def __init__(self, growth_rate=32, block_config=(6, 12, 24, 16),
                  num_init_features=64, bn_size=4, drop_rate=0, num_classes=1000, memory_efficient=False, attention_setting=[-1, -1, -1, -1], part_num=None, **kwargs):
@@ -101,51 +104,53 @@ class DenseNet_PASE(nn.Module):
         self.trans = nn.ModuleList([])
         for i, num_layers in enumerate(block_config):
             
-            if attention_setting:
-                self.phy_attn_a.append(PASE(part_num, num_features, pow(2, i+2), reduction=2))
-                
-            else:
+            if attention_setting[i] == 0:
                 self.phy_attn_a.append(identity())
+            elif attention_setting[i] == 1:
+                self.phy_attn_a.append(PASE(part_num, num_features, pow(2, i+2), reduction=2))
+           
+
             self.block.append(_DenseBlock(
-                num_layers=num_layers,  # 层数重复次数
-                num_input_features=num_features,    # 特征层数64
+                num_layers=num_layers,  
+                num_input_features=num_features,    
                 bn_size=bn_size,
                 growth_rate=growth_rate,
-                drop_rate=drop_rate,    # dropout值 0
+                drop_rate=drop_rate,    
                 memory_efficient=memory_efficient))
-            num_features = num_features + num_layers * growth_rate  # 更新num_features=64+6*32 = 256
+            num_features = num_features + num_layers * growth_rate  
             if i != len(block_config) - 1:
+                if attention_setting[i] == -1:
+                    self.phy_attn_b.append(identity())
+                elif attention_setting[i] == 0:
+                    self.phy_attn_b.append(PASE(part_num, num_features, pow(2, i+2), reduction=2))
                 
                 self.trans.append(_Transition(num_input_features=num_features,
-                                    num_output_features=num_features // 2))  # 输出通道数减半               
-                num_features = num_features // 2    # 更新num_features= num_features//2 取整数部分
+                                    num_output_features=num_features // 2))     
+                num_features = num_features // 2  
 
-        # Final batch norm
+
         self.norm5 = nn.BatchNorm2d(num_features)
 
-        # Linear layer
         self.classifier = nn.Linear(num_features, num_classes)
 
 
 
     def forward(self, *args):
-
         x = args[0]
         ASC_part = args[1]
-        features = self.features(x) # 特征提取层
-        features = self.phy_attn_a[0](features, ASC_part) 
+        features = self.features(x) 
         for i in range(3):
-            
+            features = self.phy_attn_a[i](features, ASC_part)
             features = self.block[i](features)
-            
+            features = self.phy_attn_b[i](features, ASC_part)
             features = self.trans[i](features)
-            features = self.phy_attn_a[i+1](features, ASC_part) 
+        features = self.phy_attn_a[3](features, ASC_part)
         features = self.block[3](features)
         features = self.norm5(features)
         out = F.relu(features, inplace=True)
-        out = F.adaptive_avg_pool2d(out, (1, 1))    # 自适应均值池化，输出大小为（1，1）
+        out = F.adaptive_avg_pool2d(out, (1, 1)) 
         out = torch.flatten(out, 1)
-        out = self.classifier(out)  # 分类器
+        out = self.classifier(out)  
         return out
     
 
@@ -155,6 +160,9 @@ def _densenet_PASE(growth_rate, block_config, num_init_features, num_classes, **
     return model
 
 
-def densenet121_PASE(num_class, **kwargs):
+def Densenet121_PASE(num_class, **kwargs):
 
     return _densenet_PASE(32, (6, 12, 24, 16), 64, num_class, **kwargs)
+
+if __name__ == '__main__'():
+    A = Densenet121_PASE(10, 1, 2)
