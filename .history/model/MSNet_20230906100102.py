@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 import sys
 from model.PIHA import *
-class MSNet_basic_block_PIHA(nn.Module):
+class MSNet_basic_block_PASE(nn.Module):
     def __init__(self, in_channel, out_channel, part_num, down_rate, attention_setting=-1):
-        super(MSNet_basic_block_PIHA, self).__init__()
+        super(MSNet_basic_block_PASE, self).__init__()
         self.stream_A = nn.Sequential(
             nn.Conv2d(in_channel, out_channel, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(out_channel),  
@@ -38,9 +38,9 @@ class MSNet_basic_block_PIHA(nn.Module):
         )
 
         if attention_setting:
-            self.attn_A = PIHA(part_num, out_channel, down_rate, 2)
-            self.attn_B = PIHA(part_num, out_channel, down_rate, 2)
-            self.attn_C = PIHA(part_num, out_channel, down_rate, 2)
+            self.attn_A = PASE(part_num, out_channel, down_rate, 2)
+            self.attn_B = PASE(part_num, out_channel, down_rate, 2)
+            self.attn_C = PASE(part_num, out_channel, down_rate, 2)
         else:
             self.attn_A = identity()
             self.attn_B = identity()
@@ -57,9 +57,9 @@ class MSNet_basic_block_PIHA(nn.Module):
         Concat = torch.cat((x_A, x_B, x_C), 1)
         return Concat
 #使用第二版的通道注意力，通道上使用卷积分组
-class MSNet_last_block_PIHA(nn.Module):
+class MSNet_last_block_PASE(nn.Module):
     def __init__(self, in_channel, out_channel, part_num, down_rate, attention_setting=-1):
-        super(MSNet_last_block_PIHA, self).__init__()
+        super(MSNet_last_block_PASE, self).__init__()
         self.stream_A = nn.Sequential(
             nn.Conv2d(in_channel, out_channel, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(out_channel),     
@@ -94,9 +94,9 @@ class MSNet_last_block_PIHA(nn.Module):
         )
 
         if attention_setting:
-            self.attn_A = PIHA(part_num, out_channel, down_rate, 2)
-            self.attn_B = PIHA(part_num, out_channel, down_rate, 2)
-            self.attn_C = PIHA(part_num, out_channel, down_rate, 2)
+            self.attn_A = PASE(part_num, out_channel, down_rate, 2)
+            self.attn_B = PASE(part_num, out_channel, down_rate, 2)
+            self.attn_C = PASE(part_num, out_channel, down_rate, 2)
         else:
             self.attn_A = identity()
             self.attn_B = identity()
@@ -115,14 +115,14 @@ class MSNet_last_block_PIHA(nn.Module):
         return Concat
 
 #使用第二版的通道注意力，通道上使用卷积分组
-class MSNet_PIHA(nn.Module):
+class MSNet_PASE(nn.Module):
 
     def __init__(self, num_class, part_num, channel, attention_setting):
-        super(MSNet_PIHA, self).__init__()
+        super(MSNet_PASE, self).__init__()
 
-        self.MS1 = MSNet_basic_block_PIHA(1, channel, part_num, 2, attention_setting)
-        self.MS2 = MSNet_basic_block_PIHA(3*channel, channel, part_num, 4, attention_setting)
-        self.MS3 = MSNet_last_block_PIHA(3*channel, channel, part_num, 16, attention_setting)
+        self.MS1 = MSNet_basic_block_PASE(1, channel, part_num, 2, attention_setting)
+        self.MS2 = MSNet_basic_block_PASE(3*channel, channel, part_num, 4, attention_setting)
+        self.MS3 = MSNet_last_block_PASE(3*channel, channel, part_num, 16, attention_setting)
         self.Conv_Fu = nn.Conv2d(3*channel, 128, kernel_size=4, stride=1, padding=0)
         self.BN_Fu   = nn.BatchNorm2d(128)
         self.ReLU_Fu = nn.ReLU()
