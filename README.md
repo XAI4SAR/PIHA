@@ -1,4 +1,4 @@
-# SAR-HUB
+# PIHA: Physics Inspired Hybrid Attention
 
 ## 0. Table of Contents
 
