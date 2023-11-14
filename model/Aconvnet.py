@@ -19,7 +19,7 @@ class Aconvnet_PIHA(nn.Module):
         )
         
         inchannel = 16
-        down_rate = 2
+        down_rate = 4
         if attention_setting:
             self.phy_attn1 = PIHA(part_num, inchannel, down_rate, reduction=2)
         else:
@@ -34,7 +34,7 @@ class Aconvnet_PIHA(nn.Module):
         )
 
         inchannel = 32
-        down_rate = 4
+        down_rate = 8
         if attention_setting:
             self.phy_attn2 = PIHA(part_num, inchannel, down_rate, reduction=2)
         else:
@@ -47,7 +47,7 @@ class Aconvnet_PIHA(nn.Module):
             nn.MaxPool2d(kernel_size=2, stride=2)
         )
         inchannel = 64
-        down_rate = 8
+        down_rate = 16
 
         if attention_setting:
             self.phy_attn3 = PIHA(part_num, inchannel, down_rate, reduction=2)

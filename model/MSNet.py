@@ -56,7 +56,7 @@ class MSNet_basic_block_PIHA(nn.Module):
         x_C = self.attn_C(x_C, ASC_part)
         Concat = torch.cat((x_A, x_B, x_C), 1)
         return Concat
-#使用第二版的通道注意力，通道上使用卷积分组
+
 class MSNet_last_block_PIHA(nn.Module):
     def __init__(self, in_channel, out_channel, part_num, down_rate, attention_setting=-1):
         super(MSNet_last_block_PIHA, self).__init__()
@@ -114,7 +114,7 @@ class MSNet_last_block_PIHA(nn.Module):
         Concat = torch.cat((x_A, x_B, x_C), 1)
         return Concat
 
-#使用第二版的通道注意力，通道上使用卷积分组
+
 class MSNet_PIHA(nn.Module):
 
     def __init__(self, num_class, part_num, channel, attention_setting):
@@ -127,7 +127,7 @@ class MSNet_PIHA(nn.Module):
         self.BN_Fu   = nn.BatchNorm2d(128)
         self.ReLU_Fu = nn.ReLU()
         
-        #----------------Full Connection Layers----------------#
+
         self.FC1     = nn.Linear(128, num_class)
         self.ReLU_FC1 = nn.ReLU()                  
 
@@ -136,13 +136,13 @@ class MSNet_PIHA(nn.Module):
         x = self.MS2(x, ASC_part)
         x = self.MS3(x, ASC_part)
 
-        x  = self.Conv_Fu(x)                   # 1 X 1
+        x  = self.Conv_Fu(x)                  
         x  = self.BN_Fu(x)
         x  = self.ReLU_Fu(x)
 
-        #----------------FuLL Connection Layers--------------------------#
+
         x = x.reshape(x.size(0), -1)
-        x = self.FC1(x)                               # 128-10
+        x = self.FC1(x)                               
         x = self.ReLU_FC1(x)
         
         return x

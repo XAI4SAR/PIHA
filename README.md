@@ -33,7 +33,7 @@ This project is for paper "Physics Inspired Hybrid Attention for SAR Target Reco
 The dataset we adopt is MSTAR. We extract the ASC centers for target and adopt the k-means algorithm to divide the targets into four parts. The data can be downloaded at following link:
 
 ### 2.2 Training
-To train a PASE based model, run the following command
+To train a PIHA based model, run the following command
 ```
 python submitit_pretrain.py \
     --datatxt_train ${TRAIN_LIST_PATH} \
@@ -46,7 +46,7 @@ python submitit_pretrain.py \
     --patience 200 \
     --batch_size 32 \
     --device '0' \
-    --arch 'Densenet121_PASE' \
+    --arch 'Densenet121_PIHA' \
     --cate_num 10 \
     --part_num 4 \
     --attention_setting True \
@@ -56,9 +56,9 @@ python submitit_pretrain.py \
 -   Here the datatxt_train, datatxt_OFA1, datatxt_OFA2, datatxt_OFA3, datatxt_val are the path of data list which are provided in the above link. 
 -   Train_num is the number of training process to ensure the stability of result. 
 -   Patience is the parameter of earlystop strategy to stop training when accuracy of validation set does not improve. 
--   Arch is the type of backbone which can be selected during Densenet121_PASE, Aconvnet_PASE and MSNet_PASE.
+-   Arch is the type of backbone which can be selected during Densenet121_PIHA, Aconvnet_PIHA and MSNet_PIHA.
 -   Part_num is the numbers of clusters in data preparation and part_num of our data is 4.
--   Attention_setting decide whether to use our PASE.
+-   Attention_setting decide whether to use our PIHA.
 ## 3. Contributors
 In this repository, our work are based on DenseNet121, CV-MSNET and Aconvnet. We carry out our experiment on MSTAR dataset. Thanks for all the above works' contribution.
 
