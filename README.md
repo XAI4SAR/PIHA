@@ -31,6 +31,7 @@ This project is for paper "Physics Inspired Hybrid Attention for SAR Target Reco
 ## 2. Getting Started
 ### 2.1 Data Preparation
 The dataset we adopt is MSTAR. We extract the ASC centers for target and adopt the k-means algorithm to divide the targets into four parts. The data can be downloaded at following link:
+https://drive.google.com/file/d/1OqdgOodVVAJclnjSH06B4tvVn9F1C4Ns/view?usp=sharing
 
 ### 2.2 Training
 To train a PIHA based model, run the following command
