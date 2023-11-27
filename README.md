@@ -12,7 +12,9 @@
 
 ## 1. Introduction
 
-This project is for paper "Physics Inspired Hybrid Attention for SAR Target Recognition".
+This project is for paper "Physics Inspired Hybrid Attention for SAR Target Recognition". arXiv preprint arXiv:2309.15697, 2023
+
+https://arxiv.org/abs/2309.15697
 
 ### 1.1 Features
 
