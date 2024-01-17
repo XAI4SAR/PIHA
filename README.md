@@ -1,40 +1,59 @@
-# PIHA: Physics Inspired Hybrid Attention
+# Physics Inspired Hybrid Attention for SAR Target Recognition
 
 ## 0. Table of Contents
 
 * [Introduction](#1-introduction)
-    * [Features](#11-features) 
-    * [Contributions](#12-contributions) 
-* [Getting Started](#2-getting-started)
-* [Contributors](#3-contributors)
-* [Citation](#4-citation)
-* [References](#5-References)
+* [Features](#2-features) 
+* [Contributions](#3-contributions) 
+* [Getting Started](#4-getting-started)
+* [Contributors](#5-contributors)
 
 ## 1. Introduction
 
-This project is for paper "Physics Inspired Hybrid Attention for SAR Target Recognition".
+This is the official implementation for paper "Physics Inspired Hybrid Attention for SAR Target Recognition". 
 
-### 1.1 Features
+DOI: 10.1016/j.isprsjprs.2023.12.004
+
+Full paper access: [Arxiv](https://arxiv.org/abs/2309.15697) [ResearchGate](https://www.researchgate.net/publication/376832791_Physics_inspired_hybrid_attention_for_SAR_target_recognition)
+
+```
+@article{huang2024physics,
+  title={Physics inspired hybrid attention for SAR target recognition},
+  author={Huang, Zhongling and Wu, Chong and Yao, Xiwen and Zhao, Zhicheng and Huang, Xiankai and Han, Junwei},
+  journal={ISPRS Journal of Photogrammetry and Remote Sensing},
+  volume={207},
+  pages={164--174},
+  year={2024},
+  publisher={Elsevier}
+}
+```
+
+## 2. Features
 
 <div align=center>
 <img src="https://github.com/XAI4SAR/PIHA/blob/main/img/network.png">
 </div>
 
-### 1.2 Contributions
--   On the basis of knowledge-guided model architecture design, a novel physics-inspired hybrid attention (PIHA) mechanism is proposed for SAR target recognition, in which the semantic prior of physical information is adaptively incorporated with the attention mechanism. It is flexible for different types of physical information and can be incorporated into various deep architectures to enhance performance.
+## 3. Contributions
+-   A novel physics-inspired hybrid attention (PIHA) mechanism is proposed for SAR target recognition, in which the semantic prior of physical information is adaptively incorporated with the attention mechanism. It is flexible for different types of physical information and can be incorporated into various deep architectures to enhance performance.
     
--   We propose the once-for-all (OFA) evaluation protocol to thoroughly assess the algorithm, demonstrating the robustness and generalization capabilities more effectively.
-
--   This study delves into the comprehensive examination of the effects of data-driven and physics-driven attentions, offering valuable insights that can serve as a source of inspiration for design concepts.
+-   We propose the once-for-all (OFA) evaluation protocol for MSTAR dataset to thoroughly assess the algorithm, demonstrating the robustness and generalization capabilities more effectively.
 
 -   The physical information of SAR targets used in this study together with the source code are open to public, which ensures the reproducibility of our work and facilitates a fair comparison of the results with other methodologies.
-## 2. Getting Started
-### 2.1 Data Preparation
-The dataset we adopt is MSTAR. We extract the ASC centers for target and adopt the k-means algorithm to divide the targets into four parts. The data can be downloaded at following link:
+
+
+## 4. Getting Started
+
+### 4.1 Data Preparation
+
+The experimented dataset is MSTAR. We extracted the Attributed Scattering Centers (ASC) for SAR targets and processed the targets into K parts with local semantics. The ASC data can be downloaded at:
+
 https://drive.google.com/file/d/1OqdgOodVVAJclnjSH06B4tvVn9F1C4Ns/view?usp=sharing
 
-### 2.2 Training
+### 4.2 Training
+
 To train a PIHA based model, run the following command
+
 ```
 python submitit_pretrain.py \
     --datatxt_train ${TRAIN_LIST_PATH} \
@@ -60,11 +79,12 @@ python submitit_pretrain.py \
 -   Arch is the type of backbone which can be selected during Densenet121_PIHA, Aconvnet_PIHA and MSNet_PIHA.
 -   Part_num is the numbers of clusters in data preparation and part_num of our data is 4.
 -   Attention_setting decide whether to use our PIHA.
-## 3. Contributors
-In this repository, our work are based on DenseNet121, CV-MSNET and Aconvnet. We carry out our experiment on MSTAR dataset. Thanks for all the above works' contribution.
 
+## 5. Contributors
 
-## 4. Citation
+In this repository, the applied backbones are based on [DenseNet121](https://github.com/liuzhuang13/DenseNet), [MS-CVNets](https://github.com/Crush0416/MS-CVNets-a-novel-complex-valued-neural-networks-for-SAR-ATR) and [A_ConvNet](https://github.com/fudanxu/MSTAR-AConvNet). We deeply appreciate the authors for releasing their codes.
 
-If you find this repository useful for your publications, please consider citing our paper.
+Main contributors: [@nwpuwwc](https://github.com/orgs/XAI4SAR/people/nwpuwwc) [@Alien9427](https://github.com/orgs/XAI4SAR/people/Alien9427)
+
+If you have any questions, please contact huangzhongling@nwpu.edu.cn
 
