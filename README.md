@@ -86,5 +86,7 @@ In this repository, the applied backbones are based on [DenseNet121](https://git
 
 Main contributors: [@nwpuwwc](https://github.com/orgs/XAI4SAR/people/nwpuwwc) [@Alien9427](https://github.com/orgs/XAI4SAR/people/Alien9427)
 
+Maintenance: [@Guozi2002](https://github.com/orgs/XAI4SAR/people/Guozi2002)
+
 If you have any questions, please contact huangzhongling@nwpu.edu.cn
 
