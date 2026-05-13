@@ -46,9 +46,11 @@ Full paper access: [Arxiv](https://arxiv.org/abs/2309.15697) [ResearchGate](http
 
 ### 4.1 Data Preparation
 
-The experimented dataset is MSTAR. We extracted the Attributed Scattering Centers (ASC) for SAR targets and processed the targets into K parts with local semantics. The ASC data can be downloaded at:
+The experimented dataset is MSTAR. We extracted the Attributed Scattering Centers (ASC) for SAR targets and processed the targets into K parts with local semantics. The ASC data can be downloaded from the following links:
 
-https://drive.google.com/file/d/1OqdgOodVVAJclnjSH06B4tvVn9F1C4Ns/view?usp=sharing
+- Google Drive: https://drive.google.com/file/d/1OqdgOodVVAJclnjSH06B4tvVn9F1C4Ns/view?usp=sharing
+- Baidu Netdisk: https://pan.baidu.com/s/1PrnJL3d9YlMthqDj9SgrYw?pwd=8ti7 
+  Extraction code: 8ti7
 
 ### 4.2 Training
 
